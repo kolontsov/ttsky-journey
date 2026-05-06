@@ -30,6 +30,11 @@ else
 
 # Gate level simulation:
 SIM_BUILD				= sim_build/gl
+# Forwarded to the cocotb test so it can skip checks on flops that have
+# no reset (sigma_delta `accum`, synth_engine `sample_in_tick`/`mixed`):
+# their `ifdef __ICARUS__` initial trick targets RTL regs that don't
+# exist in the synthesized netlist, so they stay X in GL sim.
+export GL_TEST = 1
 COMPILE_ARGS    += -DGL_TEST
 COMPILE_ARGS    += -DFUNCTIONAL
 COMPILE_ARGS    += -DUSE_POWER_PINS

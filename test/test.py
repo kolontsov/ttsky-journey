@@ -1,9 +1,13 @@
 # SPDX-FileCopyrightText: © 2026 Vadim Kolontsov
 # SPDX-License-Identifier: Apache-2.0
 
+import os
+
 import cocotb
 from cocotb.clock import Clock
 from cocotb.triggers import ClockCycles, RisingEdge
+
+GL_TEST = os.environ.get("GL_TEST") == "1"
 
 
 @cocotb.test()
@@ -40,13 +44,21 @@ async def test_vga_and_audio_smoke(dut):
     # Verify uio_oe bit 7 is 1 (audio output enable)
     assert dut.uio_oe.value.binstr[0] == "1", "uio_oe[7] should be 1 (audio output)"
 
-    # σΔ repeats on a 4-cycle pattern per amplitude — sample adjacent clocks
-    # to dodge aliasing.
-    audio_vals = set()
-    for _ in range(32):
-        await RisingEdge(dut.clk)
-        audio_vals.add(dut.uio_out.value.binstr[0])
+    # GL sim: sigma_delta `accum`, synth_engine `sample_in_tick`/`mixed` have
+    # no reset (deliberate, to save GPL — see comments in those files). Their
+    # `ifdef __ICARUS__` initial trick targets RTL regs that don't exist in
+    # the synthesized netlist, so they stay X. On real silicon they power up
+    # to random binary values and σΔ converges in microseconds. RTL test
+    # already covers audio toggling; the GL pass only needs to prove pad
+    # wiring (hsync above + uio_oe[7] below).
+    if not GL_TEST:
+        # σΔ repeats on a 4-cycle pattern per amplitude — sample adjacent clocks
+        # to dodge aliasing.
+        audio_vals = set()
+        for _ in range(32):
+            await RisingEdge(dut.clk)
+            audio_vals.add(dut.uio_out.value.binstr[0])
 
-    assert audio_vals == {"0", "1"}, f"audio not toggling: only saw {audio_vals}"
+        assert audio_vals == {"0", "1"}, f"audio not toggling: only saw {audio_vals}"
 
     dut._log.info("Smoke test passed")
