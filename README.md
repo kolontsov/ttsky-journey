@@ -1,6 +1,6 @@
 # Journey — TTSKY26a Demoscene Entry
 
-Dark tunnels and a cat on a red balloon casting spells, bringing colors and joy, with chiptune music and scrolling text — all in just two Tiny Tapeout tiles and 2743 logic cells.
+Dark tunnels and a cat on a red balloon casting spells, bringing colors and joy, with chiptune music and scrolling text — all in just two Tiny Tapeout tiles and 2916 logic cells.
 
 - [Project datasheet](docs/info.md)
 - [TTSKY26a Demoscene competition](https://tinytapeout.com/competitions/demoscene-ttsky26a-announce/)

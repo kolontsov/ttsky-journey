@@ -27,25 +27,26 @@ async def test_vga_and_audio_smoke(dut):
     # Let VGA counters run a few lines (1 line = 800 clocks at 25 MHz pix=master)
     await ClockCycles(dut.clk, 8_000)
 
+    # In GL sim the unused uo_out / uio_out bits sit at X (tie cells), so
+    # we sample bit 7 via binstr[0] (MSB) instead of converting the whole bus.
     # Sample at intervals spread across ~3 line periods to catch hsync toggle
     hsync_vals = set()
     for _ in range(30):
         await ClockCycles(dut.clk, 250)
-        uo = dut.uo_out.value.to_unsigned()
-        hsync_vals.add((uo >> 7) & 1)
+        hsync_vals.add(dut.uo_out.value.binstr[0])
 
-    assert len(hsync_vals) == 2, f"hsync not toggling: only saw {hsync_vals}"
+    assert hsync_vals == {"0", "1"}, f"hsync not toggling: only saw {hsync_vals}"
 
-    # Verify uio_oe has bit 7 set (audio output enable)
-    assert (dut.uio_oe.value.to_unsigned() & 0x80) != 0, "uio_oe[7] should be 1 (audio output)"
+    # Verify uio_oe bit 7 is 1 (audio output enable)
+    assert dut.uio_oe.value.binstr[0] == "1", "uio_oe[7] should be 1 (audio output)"
 
     # σΔ repeats on a 4-cycle pattern per amplitude — sample adjacent clocks
     # to dodge aliasing.
     audio_vals = set()
     for _ in range(32):
         await RisingEdge(dut.clk)
-        audio_vals.add((dut.uio_out.value.to_unsigned() >> 7) & 1)
+        audio_vals.add(dut.uio_out.value.binstr[0])
 
-    assert len(audio_vals) == 2, f"audio not toggling: only saw {audio_vals}"
+    assert audio_vals == {"0", "1"}, f"audio not toggling: only saw {audio_vals}"
 
     dut._log.info("Smoke test passed")
