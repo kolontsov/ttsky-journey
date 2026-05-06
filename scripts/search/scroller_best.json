@@ -1,0 +1,10 @@
+{
+  "char_order": " OCNITJGEUYMAHVBL2SPKR*D",
+  "metric": "gpl_util",
+  "value": 99.281,
+  "yosys_cells": 3595,
+  "flat_wires": 4620,
+  "scroller_rom_wires": 462,
+  "updated": "2026-05-05",
+  "note": "Read by gen_scroller.py; updated by search_scroller.py."
+}

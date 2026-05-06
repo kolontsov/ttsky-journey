@@ -3,10 +3,22 @@
 
 # defaults
 SIM ?= icarus
-FST ?= -fst # Use more efficient FST format
+FST ?= -fst
 TOPLEVEL_LANG ?= verilog
 SRC_DIR = $(PWD)/../src
-PROJECT_SOURCES = tt_um_kolontsov_journey.sv vga_timing.sv
+
+SYNTH_SV = synth_engine.sv synth_patterns.sv \
+    synth_kick.sv synth_bass.sv synth_melody.sv synth_noise.sv
+
+PROJECT_SOURCES = tt_um_kolontsov_journey.sv clk_gen.sv vga_timing.sv \
+    pixel_shader.sv cordic.sv reciprocal.sv \
+    bayer_dither.sv palette.sv dim_fade.sv \
+    scroller.sv scroller_rom.sv intro_phase.sv cat_sprite.sv cat_speech.sv \
+    $(SYNTH_SV) \
+    sigma_delta.sv
+
+# Enable SystemVerilog support in Icarus
+COMPILE_ARGS += -g2012
 
 ifneq ($(GATES),yes)
 
@@ -38,7 +50,6 @@ COMPILE_ARGS 		+= -I$(SRC_DIR)
 VERILOG_SOURCES += $(PWD)/tb.v
 TOPLEVEL = tb
 
-# List test modules to run, separated by commas and without the .py suffix:
 COCOTB_TEST_MODULES = test
 
 # include cocotb's make rules to take care of the simulator setup

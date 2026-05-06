@@ -6,7 +6,7 @@
 `default_nettype none
 
 module vga_timing (
-    input  wire        clk,
+    input  wire        clk,        // pixel clock (25 MHz)
     input  wire        rst_n,
     output logic       hsync,
     output logic       vsync,
@@ -19,12 +19,12 @@ module vga_timing (
     localparam H_VISIBLE = 640;
     localparam H_FRONT   = 16;
     localparam H_SYNC    = 96;
-    localparam H_TOTAL   = 800;
+    localparam H_TOTAL   = 800;  // visible + front(16) + sync(96) + back(48)
 
     localparam V_VISIBLE = 480;
     localparam V_FRONT   = 10;
     localparam V_SYNC    = 2;
-    localparam V_TOTAL   = 525;
+    localparam V_TOTAL   = 525;  // visible + front(10) + sync(2) + back(33)
 
     logic [9:0] h_count, v_count;
 
@@ -42,6 +42,7 @@ module vga_timing (
         end
     end
 
+    // Sync signals (active low) and display area
     always_comb begin
         hsync          = ~(h_count >= H_VISIBLE + H_FRONT &&
                            h_count <  H_VISIBLE + H_FRONT + H_SYNC);

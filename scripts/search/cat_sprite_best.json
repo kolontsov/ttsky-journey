@@ -1,0 +1,14 @@
+{
+  "frame_enc": {
+    "0": 0,
+    "1": 1,
+    "2": 3,
+    "3": 7,
+    "4": 6,
+    "5": 4
+  },
+  "metric": "gpl_util",
+  "value": 99.036,
+  "updated": "2026-05-05",
+  "note": "search_cat_sprite.py winner (10 candidates evaluated)."
+}

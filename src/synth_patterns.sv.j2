@@ -1,0 +1,106 @@
+/*
+ * Copyright (c) 2026 Vadim Kolontsov
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * AUTO-GENERATED from scripts/song.json by scripts/gen_patterns.py.
+ * Run `make gen` after editing the song; do not hand-edit.
+ *
+ * Combinational decode of arrangement / drums / bass / melody from
+ * timing inputs.
+ */
+
+`default_nettype none
+
+module synth_patterns (
+    input  wire [2:0]  section_idx,
+    input  wire [1:0]  bar_in_s,
+    input  wire [3:0]  sixt_in_b,
+    input  wire [2:0]  eighth_in_b,
+    input  wire        sixt_edge,
+
+    output wire        kick_trig_now,
+    output wire        noise_trig_now,
+    output wire        noise_mode,      // 0=hat, 1=snare (snare wins on overlap)
+    output wire        mel_trig_now,
+
+    output wire [2:0]  mel_idx_main_new,
+    output wire [2:0]  mel_idx_arp_new,
+    output wire        mel_ev_main_oct,
+    output wire        mel_ev_arp_oct,
+    output wire [7:0]  bass_inc
+);
+
+    // Note-increment table after HW phase-width scaling.
+    function automatic logic [6:0] note_inc7(input logic [2:0] idx);
+        case (idx)
+{{ note_inc_cases }}
+        endcase
+    endfunction
+
+    // Arrangement: section_idx 0..7 → variant 0..{{ n_variants - 1 }}
+    //   {{ arrangement_str }}
+    logic [{{ vbits - 1 }}:0] variant;
+    always_comb case (section_idx)
+{{ variant_cases }}
+        default: variant = {{ vbits }}'d0;
+    endcase
+
+    // Drum events: per-variant SOP decode. Drum rows repeat across the
+    // four bars of a section; snare wins over hat on the same sixteenth.
+{% if drum_helpers %}
+{{ drum_helpers }}
+
+{% endif %}
+    logic drum_kick, drum_noise, drum_snare;
+    always_comb begin
+        case (variant)
+{{ drum_variant_cases }}
+        endcase
+    end
+
+    assign kick_trig_now  = sixt_edge & drum_kick;
+    assign noise_trig_now = sixt_edge & drum_noise;
+    assign noise_mode     = drum_snare;
+
+    // Bass = bar chord root + {variant, eighth_in_b} offset.
+    // Bassline is transposed by bar; one turnaround offset is bar-specific.
+    logic [2:0] bass_root;
+    always_comb case (bar_in_s)
+{{ bass_root_cases }}
+        default: bass_root = 3'd{{ bass_root_default }};
+    endcase
+
+    logic [2:0] bass_offset;
+    logic       bass_oct_bit;
+    always_comb begin
+        bass_offset  = 3'd0;
+        bass_oct_bit = 1'b0;
+        case ({variant, eighth_in_b})
+{{ bass_offset_cases }}
+            default: ;
+        endcase
+    end
+    wire [2:0] bass_note_idx = bass_root + bass_offset;
+
+    // Melody: per-bit SOP decode over {variant, bar_in_s, eighth_in_b}.
+    // Stored fields: main_idx, main_oct, arp_idx, cross_oct.
+    // Effective arp_oct = main_oct ^ cross_oct; invalid positions are
+    // don't-cares except for `valid`.
+    wire [{{ mel_key_w - 1 }}:0] mel_key = {variant, bar_in_s, eighth_in_b};
+
+{{ melody_wires }}
+
+    wire [2:0] mel_ev_main_idx = {mel_ev_main_idx_2, mel_ev_main_idx_1, mel_ev_main_idx_0};
+    wire [2:0] mel_ev_arp_idx  = {mel_ev_arp_idx_2,  mel_ev_arp_idx_1,  mel_ev_arp_idx_0};
+    assign mel_trig_now    = sixt_edge & ~sixt_in_b[0] & mel_ev_valid;
+    assign mel_ev_main_oct = mel_ev_main_oct_i;
+    assign mel_ev_arp_oct  = mel_ev_main_oct_i ^ mel_ev_cross_oct;
+
+    /* verilator lint_off UNUSEDSIGNAL */
+    wire [6:0] bass_note_inc     = note_inc7(bass_note_idx);
+    /* verilator lint_on UNUSEDSIGNAL */
+    assign bass_inc         = bass_oct_bit ? {bass_note_inc, 1'b0} : {1'b0, bass_note_inc};
+    assign mel_idx_main_new = mel_ev_main_idx;
+    assign mel_idx_arp_new  = mel_ev_arp_idx;
+
+endmodule

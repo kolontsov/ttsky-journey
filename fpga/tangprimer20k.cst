@@ -1,0 +1,66 @@
+// Tang Primer 20K + Dock pin constraints for Journey
+// FPGA: GW2A-LV18PG256C8/I7   Family: GW2A-18C
+// Full board reference: docs/tangprimer20k.md
+//
+// Tiny VGA PMOD on dock PMOD3, tt-audio-pmod on dock PMOD1.
+
+// ── 27 MHz onboard oscillator ──
+IO_LOC  "clk_27m" H11;
+IO_PORT "clk_27m" PULL_MODE=NONE IO_TYPE=LVCMOS33;
+
+// ── User button S0 (only one in the 3.3V bank) ──
+IO_LOC  "btn_s0_n" T10;
+IO_PORT "btn_s0_n" PULL_MODE=UP IO_TYPE=LVCMOS33;
+
+// ── Tiny VGA PMOD on dock PMOD3 ──
+// PMOD-pin → dock-pin mapping for a standard Digilent PMOD plugged into
+// any dock socket. Looking at the dock from the BACK (component side):
+//   back-LEFT  column = PMOD pins 7-10
+//   back-RIGHT column = PMOD pins 1-4
+// Chip bit → PMOD pin → dock pin:
+//   uo[0] R1  → pin 1  → B11
+//   uo[1] G1  → pin 2  → D11
+//   uo[2] B1  → pin 3  → N7
+//   uo[3] VS  → pin 4  → N8
+//   uo[4] R0  → pin 7  → A11
+//   uo[5] G0  → pin 8  → N6
+//   uo[6] B0  → pin 9  → N9
+//   uo[7] HS  → pin 10 → L9
+IO_LOC  "vga_pmod[0]" B11;
+IO_LOC  "vga_pmod[1]" D11;
+IO_LOC  "vga_pmod[2]" N7;
+IO_LOC  "vga_pmod[3]" N8;
+IO_LOC  "vga_pmod[4]" A11;
+IO_LOC  "vga_pmod[5]" N6;
+IO_LOC  "vga_pmod[6]" N9;
+IO_LOC  "vga_pmod[7]" L9;
+IO_PORT "vga_pmod[0]" PULL_MODE=NONE IO_TYPE=LVCMOS33 DRIVE=8;
+IO_PORT "vga_pmod[1]" PULL_MODE=NONE IO_TYPE=LVCMOS33 DRIVE=8;
+IO_PORT "vga_pmod[2]" PULL_MODE=NONE IO_TYPE=LVCMOS33 DRIVE=8;
+IO_PORT "vga_pmod[3]" PULL_MODE=NONE IO_TYPE=LVCMOS33 DRIVE=8;
+IO_PORT "vga_pmod[4]" PULL_MODE=NONE IO_TYPE=LVCMOS33 DRIVE=8;
+IO_PORT "vga_pmod[5]" PULL_MODE=NONE IO_TYPE=LVCMOS33 DRIVE=8;
+IO_PORT "vga_pmod[6]" PULL_MODE=NONE IO_TYPE=LVCMOS33 DRIVE=8;
+IO_PORT "vga_pmod[7]" PULL_MODE=NONE IO_TYPE=LVCMOS33 DRIVE=8;
+
+// ── tt-audio-pmod on dock PMOD1 ──
+// Audio PMOD reads the 1-bit ΣΔ from PMOD pin 10 (= chip bit 7) into its
+// low-pass filter, and passes pins 1–9 through. We only drive the bit-7 pin.
+// PMOD pin 10 sits at back-LEFT row 4 = J14 (per the convention above).
+//   uio[7] → PMOD pin 10 → J14
+IO_LOC  "audio_pin" J14;
+IO_PORT "audio_pin" PULL_MODE=NONE IO_TYPE=LVCMOS33 DRIVE=8;
+
+// ── Onboard LEDs (active low) ──
+IO_LOC  "led_n[0]" L16;
+IO_LOC  "led_n[1]" L14;
+IO_LOC  "led_n[2]" N14;
+IO_LOC  "led_n[3]" N16;
+IO_LOC  "led_n[4]" A13;
+IO_LOC  "led_n[5]" C13;
+IO_PORT "led_n[0]" PULL_MODE=NONE IO_TYPE=LVCMOS33 DRIVE=8;
+IO_PORT "led_n[1]" PULL_MODE=NONE IO_TYPE=LVCMOS33 DRIVE=8;
+IO_PORT "led_n[2]" PULL_MODE=NONE IO_TYPE=LVCMOS33 DRIVE=8;
+IO_PORT "led_n[3]" PULL_MODE=NONE IO_TYPE=LVCMOS33 DRIVE=8;
+IO_PORT "led_n[4]" PULL_MODE=NONE IO_TYPE=LVCMOS33 DRIVE=8;
+IO_PORT "led_n[5]" PULL_MODE=NONE IO_TYPE=LVCMOS33 DRIVE=8;

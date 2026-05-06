@@ -1,14 +1,57 @@
+# OS
 .DS_Store
+
+# IDE
 .idea
-*.vcd
-*.fst
-*.fst.hier
-runs
-tt_submission
+.vscode/settings.json
+*.swp
+*~
+
+# TT build
+runs/
+tt/
+tt_submission/
+.venv-tt/
 src/user_config.json
 src/config_merged.json
-test/sim_build
+
+# Cocotb test
+test/sim_build/
 test/__pycache__/
 test/results.xml
 test/gate_level_netlist.v
+
+# Gate-level recorder (generated FF init + capture artifacts)
+test/*.vh
+gl_capture/
+
+# Waveforms
+*.vcd
+*.fst
+*.fst.hier
+
+# Recordings
+*.mp4
+*.wav
+
+# Python
+.venv/
+scripts/**/__pycache__/
+
+# Verilator sim
 verilator/build/
+
+# FPGA build
+fpga/build/
+fpga/*.fs
+fpga/*.bin
+
+# C/C++ build
+*.o
+*.d
+
+# Build artifacts / debug dumps
+build/
+
+# Claude Code
+.claude/

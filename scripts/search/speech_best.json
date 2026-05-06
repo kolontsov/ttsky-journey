@@ -1,0 +1,17 @@
+{
+  "glyph_chars": [
+    "M",
+    "U",
+    "W",
+    "L",
+    "E",
+    "O",
+    "S",
+    "!"
+  ],
+  "metric": "gpl_util",
+  "value": 98.737,
+  "yosys_cells": 3540,
+  "updated": "2026-05-06",
+  "note": "Read by gen_speech.py; updated by search_speech.py."
+}

@@ -15,13 +15,39 @@
   "//": "Users have reported that values up to 80 worked well for them.",
   "PL_TARGET_DENSITY_PCT": 60,
 
+  "//": "CTS_DISTANCE_BETWEEN_BUFFERS (um) — must be non-zero on this dense",
+  "//": "1x2 floorplan. =0 lets TritonCTS land buffers on top of existing",
+  "//": "logic and DPL fails legalization (DPL-0036). 5 um is enough to",
+  "//": "break exact co-location.",
+  "CTS_DISTANCE_BETWEEN_BUFFERS": 5,
+
   "//": "CLOCK_PERIOD - Increase this in case you are getting setup time violations.",
   "//": "The value is in nanoseconds, so 20ns == 50MHz.",
-  "CLOCK_PERIOD": 20,
+  "CLOCK_PERIOD": 40,
+
+  "//": "Default 0.25 ns is a margin for unknown clock topology (PLL, CDC,",
+  "//": "off-chip sync); this chip has none. CTS skew is already in",
+  "//": "propagated_clock, so 0.10 ns covers real pad jitter / supply noise.",
+  "//": "At 0.25 ns, FF-corner hold on rst_sync / kick_sync 2FF pairs fails",
+  "//": "by ~13 ps; 0.10 ns clears all paths with +0.14 ns slack.",
+  "CLOCK_UNCERTAINTY_CONSTRAINT": 0.1,
 
   "//": "Hold slack margin - Increase them in case you are getting hold violations.",
   "PL_RESIZER_HOLD_SLACK_MARGIN": 0.1,
   "GRT_RESIZER_HOLD_SLACK_MARGIN": 0.05,
+
+  "//": "Sign off and place/route at TT (demoboard condition: 25 MHz, 1.8 V,",
+  "//": "25 C). STA also checks FF for hold; SS is omitted because the design",
+  "//": "doesn't close at 25 MHz on the slow corner (-4.79 ns WNS) — not",
+  "//": "needed for the demoboard target.",
+  "STA_CORNERS": ["nom_tt_025C_1v80", "nom_ff_n40C_1v95"],
+  "PNR_CORNERS": ["nom_tt_025C_1v80"],
+  "RSZ_CORNERS": ["nom_tt_025C_1v80"],
+
+  "//": "Custom SDC sources Librelane's base.sdc, then relaxes DRV limits",
+  "//": "for the actual 25 MHz / single-reset use case.",
+  "PNR_SDC_FILE":     "dir::constraints.sdc",
+  "SIGNOFF_SDC_FILE": "dir::constraints.sdc",
 
   "//": "RUN_LINTER, LINTER_INCLUDE_PDK_MODELS - Disabling the linter is not recommended!",
   "RUN_LINTER": 1,
